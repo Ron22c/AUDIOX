@@ -151,16 +151,7 @@ Start locally with Docker Compose
 Use Render, Railway, or Fly.io (free hosting tiers)
 
 Move to Kubernetes (e.g., K3s or GKE Autopilot) when scaling
-
-Would you like me to:
-
-Generate a Docker Compose config to tie these together?
-
-Start with a repo layout and one sample service (e.g., text extraction)?
-
-Provide API specs for the services?
-
-Let me know how deep you'd like to go next!
+!
 
 
 
