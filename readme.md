@@ -149,3 +149,37 @@ curl -X POST http://localhost:8001/upload \
 ✅ This would trigger the full pipeline (PDF → MP3).
 
 ```
+
+# 🐳 Steps to Run Docker with Docker Compose (macOS)
+
+## 📥 1. Download Docker Desktop
+
+Download Docker Desktop for Mac from the official website:
+
+👉 [https://www.docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop)
+
+---
+
+## 💾 2. Install Docker
+
+1. Open the downloaded `.dmg` file.
+2. Drag the **Docker** icon into the **Applications** folder.
+
+---
+
+## 🚀 3. Launch Docker
+
+- Open **Docker** from your **Applications**.
+- You may be prompted to log in with your Docker Hub account.
+
+Wait for Docker to fully start (look for the Docker whale icon in your menu bar).
+
+---
+
+## ⚙️ 4. Build and Run Containers
+
+Navigate to your project directory in the terminal where your `docker-compose.yml` file is located, then run:
+
+```bash
+docker-compose up --build
+```
