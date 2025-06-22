@@ -1,0 +1,6 @@
+redis
+requests
+pymupdf
+pdf2image
+pytesseract
+pillow
