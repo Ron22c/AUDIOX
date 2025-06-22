@@ -1,4 +1,0 @@
-gTTS
-redis
-pydub
-minio

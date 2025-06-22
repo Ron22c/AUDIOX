@@ -1,4 +1,0 @@
-coqui-tts[core]==0.22.1
-torch>=2.0
-torchaudio>=2.0
-redis
