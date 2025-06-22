@@ -1,0 +1,144 @@
+version: '3.9'
+
+services:
+  # 1. PDF Upload Service
+  pdf_upload:
+    build: ./services/pdf-upload
+    container_name: pdf_upload
+    ports:
+      - "8001:8000"
+    depends_on:
+      - minio
+      - redis
+    environment:
+      - STORAGE_URL=http://minio:9000
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    networks:
+      - story_net
+
+  # 2. Text Extraction Service
+  text_extractor:
+    build: ./services/text-extractor
+    container_name: text_extractor
+    ports:
+      - "8002:8000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - story_net
+
+  # 3. Emotion Tagging Service
+  emotion_tagger:
+    build: ./services/emotion-tagger
+    container_name: emotion_tagger
+    ports:
+      - "8003:8000"
+    depends_on:
+      - redis
+    environment:
+      - REDIS_URL=redis://redis:6379
+    networks:
+      - story_net
+
+  # 4. TTS Generation Service
+  # tts_generator:
+  #   build: ./services/tts-generator
+  #   container_name: tts_generator
+  #   ports:
+  #     - "8004:8000"
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - REDIS_URL=redis://redis:6379
+  #   networks:
+  #     - story_net
+  #   volumes:
+  #     - audio_files:/tmp/audio
+
+  tts_generator_gtts:
+    build: ./services/tts-generator-gtts
+    container_name: tts_generator_gtts
+    depends_on:
+      - redis
+      - minio
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=audio
+    volumes:
+      - audio_files:/tmp/audio
+    networks:
+      - story_net
+
+  # 5. Audio Storage Service (MinIO)
+  minio:
+    image: minio/minio
+    container_name: minio
+    command: server /data
+    ports:
+      - 9000:9000
+      - 9001:9001
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ADDRESS: ':9000'
+      MINIO_CONSOLE_ADDRESS: ':9001'
+    volumes:
+      - minio_data:/data
+    networks:
+      - story_net
+
+  # # 6. API Gateway / Content Delivery
+  # api_gateway:
+  #   build: ./services/api-gateway
+  #   container_name: api_gateway
+  #   ports:
+  #     - "8000:8000"
+  #   depends_on:
+  #     - pdf_upload
+  #     - text_extractor
+  #     - emotion_tagger
+  #     - tts_generator
+  #     - minio
+  #   environment:
+  #     - MINIO_URL=http://minio:9000
+  #   networks:
+  #     - story_net
+
+  # 7. Redis (for background task queuing)
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - story_net
+
+  audio_api:
+    build: ./services/audio-api
+    container_name: audio_api
+    environment:
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=audio
+    depends_on:
+      - minio
+    ports:
+      - "8000:8000"
+    networks:
+      - story_net
+
+networks:
+  story_net:
+    driver: bridge
+
+volumes:
+  minio_data:
+  audio_files:
